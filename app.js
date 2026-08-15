@@ -108,9 +108,9 @@ function renderVideos(videos) {
                     <span class="likes">${video.likes || 0}</span>
                 </div>
                 <div class="card-actions">
-                    <button class="card-action-btn" title="Me gusta" onclick="event.stopPropagation();">👍 Me gusta</button>
-                    <button class="card-action-btn" title="Comentar" onclick="event.stopPropagation();">💬 Comentar</button>
-                    <button class="card-action-btn" title="Compartir" onclick="event.stopPropagation();">🔗 Compartir</button>
+                    <button class="card-action-btn like-btn" title="Me gusta" onclick="handleCardLike(event, ${video.id}, this)">👍 Me gusta</button>
+                    <button class="card-action-btn" title="Comentar" onclick="handleCardComment(event, ${video.id})">💬 Comentar</button>
+                    <button class="card-action-btn" title="Compartir" onclick="handleCardShare(event, '${video.urlVideo}', this)">🔗 Compartir</button>
                 </div>
             </div>
         `;
@@ -251,11 +251,17 @@ function setupInteractions(video) {
     // Reset Listeners by cloning
     btnLike.replaceWith(btnLike.cloneNode(true));
     btnShare.replaceWith(btnShare.cloneNode(true));
+    btnComment.replaceWith(btnComment.cloneNode(true));
     commentForm.replaceWith(commentForm.cloneNode(true));
     
     const newBtnLike = document.getElementById('btn-like');
     const newBtnShare = document.getElementById('btn-share');
+    const newBtnComment = document.getElementById('btn-comment');
     const newCommentForm = document.getElementById('comment-form');
+
+    newBtnComment.addEventListener('click', () => {
+        document.getElementById('comment-input').focus();
+    });
 
     // Initialize Like Button UI
     updateLikeUI(newBtnLike, isLiked, combinedLikes.length);
@@ -476,6 +482,62 @@ function closeModal() {
     player.pause();
     player.currentTime = 0;
     player.src = '';
+}
+
+// Global Handlers for Card Buttons
+window.handleCardLike = function(event, videoId, btnElement) {
+    event.stopPropagation();
+    if (!AuthAPI.isAuthenticated()) {
+        alert("Debes iniciar sesión para interactuar.");
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    const user = AuthAPI.getCurrentUser();
+    const localInt = getInteractions(videoId);
+    let currentLikes = localInt.likes;
+    
+    const video = allVideos.find(v => v.id === videoId);
+    let apiLikes = video ? (video.usuariosLikes || []) : [];
+    
+    if (currentLikes.length === 0 && apiLikes.length > 0) {
+        currentLikes = [...apiLikes];
+    }
+    
+    let isLiked = currentLikes.includes(user.carnet);
+    
+    if (isLiked) {
+        currentLikes = currentLikes.filter(c => c !== user.carnet);
+        btnElement.style.color = 'var(--text-secondary)';
+    } else {
+        currentLikes.push(user.carnet);
+        btnElement.style.color = 'var(--accent)';
+    }
+    
+    localInt.likes = currentLikes;
+    saveInteractions(videoId, localInt);
+}
+
+window.handleCardComment = function(event, videoId) {
+    event.stopPropagation();
+    const video = allVideos.find(v => v.id === videoId);
+    if(video) {
+        openModal(video).then(() => {
+            setTimeout(() => {
+                const commentInput = document.getElementById('comment-input');
+                if (commentInput) commentInput.focus();
+            }, 500);
+        });
+    }
+}
+
+window.handleCardShare = function(event, url, btnElement) {
+    event.stopPropagation();
+    navigator.clipboard.writeText(url).then(() => {
+        const original = btnElement.innerHTML;
+        btnElement.innerHTML = "🔗 ¡Copiado!";
+        setTimeout(() => btnElement.innerHTML = original, 2000);
+    });
 }
 
 // Show/Hide Loading Spinner
