@@ -3,6 +3,7 @@ const API_URL = 'https://backvideo-hpevgdenh7hygvfm.canadacentral-01.azurewebsit
 // DOM Elements
 const videoGrid = document.getElementById('video-grid');
 const categoryFilter = document.getElementById('category-filter');
+const searchInput = document.getElementById('search-input');
 const loadingSpinner = document.getElementById('loading-spinner');
 const modal = document.getElementById('video-modal');
 const closeModalBtn = document.getElementById('close-modal');
@@ -106,6 +107,11 @@ function renderVideos(videos) {
                 <div class="video-meta">
                     <span class="likes">${video.likes || 0}</span>
                 </div>
+                <div class="card-actions">
+                    <button class="card-action-btn" title="Me gusta" onclick="event.stopPropagation();">👍 Me gusta</button>
+                    <button class="card-action-btn" title="Comentar" onclick="event.stopPropagation();">💬 Comentar</button>
+                    <button class="card-action-btn" title="Compartir" onclick="event.stopPropagation();">🔗 Compartir</button>
+                </div>
             </div>
         `;
 
@@ -116,16 +122,33 @@ function renderVideos(videos) {
 
 // Event Listeners
 function setupEventListeners() {
-    // Category Filter
-    categoryFilter.addEventListener('change', (e) => {
-        const selectedCategory = e.target.value;
-        if (selectedCategory === 'all') {
-            renderVideos(allVideos);
-        } else {
-            const filteredVideos = allVideos.filter(v => v.categoria === selectedCategory);
-            renderVideos(filteredVideos);
+    // Filter Function
+    const applyFilters = () => {
+        const selectedCategory = categoryFilter.value;
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        let filteredVideos = allVideos;
+        
+        if (selectedCategory !== 'all') {
+            filteredVideos = filteredVideos.filter(v => v.categoria === selectedCategory);
         }
-    });
+        
+        if (searchTerm) {
+            filteredVideos = filteredVideos.filter(v => 
+                v.titulo.toLowerCase().includes(searchTerm) || 
+                v.descripcion.toLowerCase().includes(searchTerm) ||
+                v.categoria.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        renderVideos(filteredVideos);
+    };
+
+    // Category Filter
+    categoryFilter.addEventListener('change', applyFilters);
+
+    // Search Input (Real-time)
+    searchInput.addEventListener('input', applyFilters);
 
     // Close Modal
     closeModalBtn.addEventListener('click', closeModal);

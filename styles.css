@@ -144,6 +144,14 @@ body {
     font-size: 2.5rem;
 }
 
+.filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filters input[type="text"],
 .filters select {
     padding: 0.8rem 1.5rem;
     background: var(--bg-secondary);
@@ -153,12 +161,17 @@ body {
     font-family: 'Outfit', sans-serif;
     font-size: 1rem;
     outline: none;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.filters input[type="text"] {
+    min-width: 250px;
+}
+
+.filters input[type="text"]:focus,
 .filters select:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
 .video-grid {
@@ -314,6 +327,31 @@ body {
     font-size: 0.8rem;
 }
 
+.card-actions {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.card-action-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.3s ease;
+    font-family: inherit;
+}
+
+.card-action-btn:hover {
+    color: var(--accent);
+}
+
 /* Modal */
 .modal {
     position: fixed;
@@ -408,6 +446,36 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.action-btn {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 /* Loading Spinner */

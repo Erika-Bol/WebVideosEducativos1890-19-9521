@@ -39,6 +39,7 @@
             <div class="section-header">
                 <h2>Catálogo de Videos</h2>
                 <div class="filters">
+                    <input type="text" id="search-input" placeholder="Buscar por palabra clave..." aria-label="Buscar videos">
                     <select id="category-filter" aria-label="Filtrar por categoría">
                         <option value="all">Todas las Categorías</option>
                         <!-- Options injected via JS -->
@@ -71,6 +72,11 @@
                 <div class="meta-info">
                     <span class="badge" id="modal-category">Categoría</span>
                     <span class="duration" id="modal-duration">00:00</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" title="Me gusta">👍 Me gusta</button>
+                    <button class="action-btn" title="Comentar">💬 Comentar</button>
+                    <button class="action-btn" title="Compartir">🔗 Compartir</button>
                 </div>
             </div>
         </div>
