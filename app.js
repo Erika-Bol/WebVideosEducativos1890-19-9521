@@ -169,25 +169,45 @@ function setupEventListeners() {
 }
 
 // Open Video Player Modal
-function openModal(video) {
+async function openModal(video) {
     if (!AuthAPI.isAuthenticated()) {
         alert("Debes iniciar sesión para reproducir los videos. Serás redirigido a la página de acceso.");
         window.location.href = 'login.html';
         return;
     }
 
+    // Mostrar un estado de carga en el modal opcionalmente (aquí lo hacemos rápido)
+    modalTitle.textContent = "Cargando detalle...";
+    modalDesc.textContent = "";
+    modalCategory.textContent = "";
+    modalDuration.textContent = "";
+    
+    // Obtener detalle del video por ID desde la API
+    try {
+        const response = await fetch(`${API_URL}/${video.id}`);
+        if (response.ok) {
+            const videoDetalle = await response.json();
+            // Actualizar la data con la obtenida del endpoint de detalle
+            video = videoDetalle;
+        }
+    } catch (e) {
+        console.warn("No se pudo obtener el detalle por ID, usando datos básicos.");
+    }
+
     modalTitle.textContent = video.titulo;
     modalDesc.textContent = video.descripcion;
     modalCategory.textContent = video.categoria;
     modalDuration.textContent = video.duracion;
-
+    
+    // Si queremos mostrar likes y comentarios en el modal, podríamos actualizar la UI aquí
+    // Por ahora, usamos el modal original:
     player.src = video.urlVideo;
     player.poster = video.poster;
-
+    
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
-
+    
     // Auto-play the video
     player.play().catch(e => console.log("Autoplay prevented:", e));
 }
