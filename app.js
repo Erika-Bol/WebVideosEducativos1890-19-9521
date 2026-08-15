@@ -16,9 +16,26 @@ let allVideos = [];
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    updateAuthUI();
     fetchVideos();
     setupEventListeners();
 });
+
+// Update UI based on auth state
+function updateAuthUI() {
+    const authNavItem = document.getElementById('auth-nav-item');
+    if (AuthAPI.isAuthenticated()) {
+        const user = AuthAPI.getCurrentUser();
+        authNavItem.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Hola, <strong>${user.nombre.split(' ')[0]}</strong></span>
+                <button onclick="AuthAPI.logoutUser()" style="background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.3s;">Salir</button>
+            </div>
+        `;
+    } else {
+        authNavItem.innerHTML = `<a href="login.html" class="btn-primary" style="padding: 0.5rem 1rem; border-radius: 8px;">Acceder</a>`;
+    }
+}
 
 // Fetch videos from API
 async function fetchVideos() {
@@ -130,6 +147,12 @@ function setupEventListeners() {
 
 // Open Video Player Modal
 function openModal(video) {
+    if (!AuthAPI.isAuthenticated()) {
+        alert("Debes iniciar sesión para reproducir los videos. Serás redirigido a la página de acceso.");
+        window.location.href = 'login.html';
+        return;
+    }
+
     modalTitle.textContent = video.titulo;
     modalDesc.textContent = video.descripcion;
     modalCategory.textContent = video.categoria;

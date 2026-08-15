@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Videos Educativos</title>
-    <meta name="description" content="Plataforma de aprendizaje con un catálogo de videos educativos en diversas áreas como programación, bases de datos, y más.">
+    <meta name="description"
+        content="Plataforma de aprendizaje con un catálogo de videos educativos en diversas áreas como programación, bases de datos, y más.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header class="header">
-        <div class="logo">EduStream</div>
+        <div class="logo">EduPagina</div>
         <nav>
             <ul class="nav-links">
                 <li><a href="#home">Inicio</a></li>
                 <li><a href="#catalog">Catálogo</a></li>
+                <li id="auth-nav-item"><a href="login.html" class="btn-primary" style="padding: 0.5rem 1rem; border-radius: 8px;">Acceder</a></li>
             </ul>
         </nav>
     </header>
@@ -25,7 +29,8 @@
         <section id="home" class="hero">
             <div class="hero-content">
                 <h1>Aprende sin límites</h1>
-                <p>Explora nuestro catálogo de videos educativos de alta calidad. Encuentra contenido de programación, diseño, bases de datos y mucho más.</p>
+                <p>Explora nuestro catálogo de videos educativos de alta calidad. Encuentra contenido de programación,
+                    diseño, bases de datos y mucho más.</p>
                 <a href="#catalog" class="btn-primary">Ver Catálogo</a>
             </div>
         </section>
@@ -40,9 +45,9 @@
                     </select>
                 </div>
             </div>
-            
+
             <div class="loading-spinner" id="loading-spinner"></div>
-            
+
             <div class="video-grid" id="video-grid">
                 <!-- Video Cards Injected via JS -->
             </div>
@@ -50,7 +55,7 @@
     </main>
 
     <footer class="footer">
-        <p>&copy; 2026 EduStream. Todos los derechos reservados.</p>
+        <p>&copy; 2026 EduPagina. Todos los derechos reservados.</p>
     </footer>
 
     <!-- Video Player Modal -->
@@ -71,6 +76,9 @@
         </div>
     </div>
 
+    <!-- Auth and App scripts -->
+    <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
