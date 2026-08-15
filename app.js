@@ -308,12 +308,17 @@ function setupInteractions(video) {
 }
 
 function updateLikeUI(btn, isLiked, total) {
+    const likesCountEl = document.getElementById('modal-likes-count');
+    if (likesCountEl) {
+        likesCountEl.innerHTML = `👍 ${total} Me gusta${total !== 1 ? 's' : ''}`;
+    }
+
     if (isLiked) {
         btn.classList.add('active');
-        btn.innerHTML = `👍 Te gusta (${total})`;
+        btn.innerHTML = `Te gusta`;
     } else {
         btn.classList.remove('active');
-        btn.innerHTML = `👍 Me gusta (${total})`;
+        btn.innerHTML = `Me gusta`;
     }
 }
 
