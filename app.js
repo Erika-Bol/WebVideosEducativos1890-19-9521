@@ -44,15 +44,15 @@ async function fetchVideos() {
     try {
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error('Error al cargar los videos');
-        
+
         // Note: The API returns an array directly, based on the endpoint structure provided
         // Let's handle both possible structures: raw array or { items: [...] }
         const data = await response.json();
-        
+
         // If the API returns the exact output provided in the previous terminal execution:
         // it returns an array of objects.
         allVideos = Array.isArray(data) ? data : (data.items || []);
-        
+
         populateCategories(allVideos);
         renderVideos(allVideos);
     } catch (error) {
@@ -83,7 +83,7 @@ function populateCategories(videos) {
 // Render video cards
 function renderVideos(videos) {
     videoGrid.innerHTML = '';
-    
+
     if (videos.length === 0) {
         videoGrid.innerHTML = `<p style="text-align:center; grid-column: 1/-1; color: var(--text-secondary);">No se encontraron videos para esta categoría.</p>`;
         return;
@@ -126,21 +126,21 @@ function setupEventListeners() {
     const applyFilters = () => {
         const selectedCategory = categoryFilter.value;
         const searchTerm = searchInput.value.toLowerCase().trim();
-        
+
         let filteredVideos = allVideos;
-        
+
         if (selectedCategory !== 'all') {
             filteredVideos = filteredVideos.filter(v => v.categoria === selectedCategory);
         }
-        
+
         if (searchTerm) {
-            filteredVideos = filteredVideos.filter(v => 
-                v.titulo.toLowerCase().includes(searchTerm) || 
-                v.descripcion.toLowerCase().includes(searchTerm) ||
-                v.categoria.toLowerCase().includes(searchTerm)
+            filteredVideos = filteredVideos.filter(v =>
+                (v.titulo || '').toLowerCase().includes(searchTerm) ||
+                (v.descripcion || '').toLowerCase().includes(searchTerm) ||
+                (v.categoria || '').toLowerCase().includes(searchTerm)
             );
         }
-        
+
         renderVideos(filteredVideos);
     };
 
@@ -152,7 +152,7 @@ function setupEventListeners() {
 
     // Close Modal
     closeModalBtn.addEventListener('click', closeModal);
-    
+
     // Close modal when clicking outside the content
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -180,14 +180,14 @@ function openModal(video) {
     modalDesc.textContent = video.descripcion;
     modalCategory.textContent = video.categoria;
     modalDuration.textContent = video.duracion;
-    
+
     player.src = video.urlVideo;
     player.poster = video.poster;
-    
+
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    
+
     // Auto-play the video
     player.play().catch(e => console.log("Autoplay prevented:", e));
 }
@@ -197,7 +197,7 @@ function closeModal() {
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
-    
+
     // Stop video playback
     player.pause();
     player.currentTime = 0;
