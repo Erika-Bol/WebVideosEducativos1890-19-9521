@@ -478,6 +478,130 @@ body {
     color: var(--accent);
 }
 
+.action-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* Comments Section */
+.comments-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.comments-section h4 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.comment-form textarea {
+    width: 100%;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.3s ease;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.comment-item {
+    background: rgba(30, 34, 51, 0.4);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.comment-body {
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+}
+
+.comment-footer {
+    display: flex;
+    gap: 1rem;
+}
+
+.comment-action {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.3s ease;
+}
+
+.comment-action:hover {
+    color: var(--text-primary);
+}
+
+.comment-action.delete {
+    color: var(--danger);
+}
+
+.comment-action.delete:hover {
+    color: #fca5a5;
+}
+
+.replies-list {
+    margin-top: 1rem;
+    margin-left: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-left: 2px solid var(--border-color);
+    padding-left: 1rem;
+}
+
+.reply-form-container {
+    margin-top: 1rem;
+}
+
 /* Loading Spinner */
 .loading-spinner {
     width: 50px;

@@ -168,6 +168,22 @@ function setupEventListeners() {
     });
 }
 
+// Storage keys for local overrides
+const INTERACTIONS_KEY = 'edustream_interactions';
+
+function getInteractions(videoId) {
+    const data = JSON.parse(localStorage.getItem(INTERACTIONS_KEY)) || {};
+    return data[videoId] || { likes: [], comments: [] };
+}
+
+function saveInteractions(videoId, interactions) {
+    const data = JSON.parse(localStorage.getItem(INTERACTIONS_KEY)) || {};
+    data[videoId] = interactions;
+    localStorage.setItem(INTERACTIONS_KEY, JSON.stringify(data));
+}
+
+let currentActiveVideo = null;
+
 // Open Video Player Modal
 async function openModal(video) {
     if (!AuthAPI.isAuthenticated()) {
@@ -176,40 +192,278 @@ async function openModal(video) {
         return;
     }
 
-    // Mostrar un estado de carga en el modal opcionalmente (aquí lo hacemos rápido)
     modalTitle.textContent = "Cargando detalle...";
     modalDesc.textContent = "";
     modalCategory.textContent = "";
     modalDuration.textContent = "";
+    document.getElementById('comments-list').innerHTML = '';
     
     // Obtener detalle del video por ID desde la API
     try {
         const response = await fetch(`${API_URL}/${video.id}`);
         if (response.ok) {
             const videoDetalle = await response.json();
-            // Actualizar la data con la obtenida del endpoint de detalle
             video = videoDetalle;
         }
     } catch (e) {
         console.warn("No se pudo obtener el detalle por ID, usando datos básicos.");
     }
 
+    currentActiveVideo = video;
+
     modalTitle.textContent = video.titulo;
     modalDesc.textContent = video.descripcion;
     modalCategory.textContent = video.categoria;
     modalDuration.textContent = video.duracion;
     
-    // Si queremos mostrar likes y comentarios en el modal, podríamos actualizar la UI aquí
-    // Por ahora, usamos el modal original:
     player.src = video.urlVideo;
     player.poster = video.poster;
     
+    // Configurar interacciones (Likes, Comments, Share)
+    setupInteractions(video);
+
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    document.body.style.overflow = 'hidden'; 
     
-    // Auto-play the video
     player.play().catch(e => console.log("Autoplay prevented:", e));
+}
+
+function setupInteractions(video) {
+    const user = AuthAPI.getCurrentUser();
+    const localInt = getInteractions(video.id);
+    
+    // Merging API and Local Likes
+    // The API might have likes and usuariosLikes array
+    let apiLikes = video.usuariosLikes || [];
+    let combinedLikes = [...new Set([...apiLikes, ...localInt.likes])];
+    
+    // Some local likes might mean we need to track if we UNLIKED something the API had? 
+    // To keep it simple, localInt.likes will be the definitive list for this user if they interact.
+    // Let's check if current user liked it:
+    let isLiked = combinedLikes.includes(user.carnet) || localInt.likes.includes(user.carnet);
+    
+    const btnLike = document.getElementById('btn-like');
+    const btnComment = document.getElementById('btn-comment');
+    const btnShare = document.getElementById('btn-share');
+    const commentForm = document.getElementById('comment-form');
+
+    // Reset Listeners by cloning
+    btnLike.replaceWith(btnLike.cloneNode(true));
+    btnShare.replaceWith(btnShare.cloneNode(true));
+    commentForm.replaceWith(commentForm.cloneNode(true));
+    
+    const newBtnLike = document.getElementById('btn-like');
+    const newBtnShare = document.getElementById('btn-share');
+    const newCommentForm = document.getElementById('comment-form');
+
+    // Initialize Like Button UI
+    updateLikeUI(newBtnLike, isLiked, combinedLikes.length);
+
+    newBtnLike.addEventListener('click', () => {
+        isLiked = !isLiked;
+        
+        let currentLikes = getInteractions(video.id).likes;
+        if (currentLikes.length === 0 && apiLikes.length > 0) {
+            currentLikes = [...apiLikes]; // initialize from API if first time
+        }
+
+        if (isLiked) {
+            if (!currentLikes.includes(user.carnet)) currentLikes.push(user.carnet);
+        } else {
+            currentLikes = currentLikes.filter(c => c !== user.carnet);
+        }
+
+        localInt.likes = currentLikes;
+        saveInteractions(video.id, localInt);
+        updateLikeUI(newBtnLike, isLiked, currentLikes.length);
+    });
+
+    newBtnShare.addEventListener('click', () => {
+        navigator.clipboard.writeText(video.urlVideo).then(() => {
+            const originalText = newBtnShare.textContent;
+            newBtnShare.textContent = "¡Copiado!";
+            setTimeout(() => newBtnShare.textContent = originalText, 2000);
+        });
+    });
+
+    newCommentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('comment-input');
+        const text = input.value.trim();
+        if (text) {
+            addComment(video.id, text);
+            input.value = '';
+        }
+    });
+
+    // Render Comments
+    renderComments(video);
+}
+
+function updateLikeUI(btn, isLiked, total) {
+    if (isLiked) {
+        btn.classList.add('active');
+        btn.innerHTML = `👍 Te gusta (${total})`;
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = `👍 Me gusta (${total})`;
+    }
+}
+
+function renderComments(video) {
+    const list = document.getElementById('comments-list');
+    list.innerHTML = '';
+    const user = AuthAPI.getCurrentUser();
+
+    const localInt = getInteractions(video.id);
+    let apiComments = video.comentarios || [];
+    
+    // Overwrite API comments with local ones if local exists, else use API
+    let comments = localInt.comments.length > 0 ? localInt.comments : JSON.parse(JSON.stringify(apiComments));
+    
+    // Save to local so we have a working copy
+    if (localInt.comments.length === 0 && comments.length > 0) {
+        localInt.comments = comments;
+        saveInteractions(video.id, localInt);
+    }
+
+    comments.forEach((c) => {
+        const item = document.createElement('div');
+        item.className = 'comment-item';
+        
+        const isOwner = c.carne === user.carnet;
+        const deleteBtn = `<button class="comment-action delete" onclick="deleteComment(${video.id}, ${c.id}, ${isOwner})">🗑️ Eliminar</button>`;
+        
+        item.innerHTML = `
+            <div class="comment-header">
+                <span class="comment-author">${c.estudiante}</span>
+                <span class="comment-date">${c.fecha || 'Reciente'}</span>
+            </div>
+            <div class="comment-body">${c.texto}</div>
+            <div class="comment-footer">
+                <button class="comment-action" onclick="showReplyForm(${video.id}, ${c.id})">↩️ Responder</button>
+                ${deleteBtn}
+            </div>
+            <div id="reply-container-${c.id}" class="reply-form-container"></div>
+            <div class="replies-list" id="replies-${c.id}">
+                ${(c.respuestas || []).map(r => `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">${r.estudiante}</span>
+                            <span class="comment-date">${r.fecha || 'Reciente'}</span>
+                        </div>
+                        <div class="comment-body">${r.texto}</div>
+                        <div class="comment-footer">
+                            <button class="comment-action delete" onclick="deleteReply(${video.id}, ${c.id}, ${r.id}, ${r.carne === user.carnet})">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+window.showReplyForm = function(videoId, commentId) {
+    const container = document.getElementById(`reply-container-${commentId}`);
+    if (container.innerHTML !== '') {
+        container.innerHTML = ''; // Toggle
+        return;
+    }
+    
+    container.innerHTML = `
+        <form class="comment-form" onsubmit="event.preventDefault(); addReply(${videoId}, ${commentId});">
+            <textarea id="reply-input-${commentId}" placeholder="Escribe una respuesta..." required style="min-height: 50px; padding: 0.5rem;"></textarea>
+            <div class="comment-actions">
+                <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem;">Enviar</button>
+            </div>
+        </form>
+    `;
+}
+
+window.addComment = function(videoId, text) {
+    const user = AuthAPI.getCurrentUser();
+    const localInt = getInteractions(videoId);
+    
+    const newComment = {
+        id: Date.now(),
+        carne: user.carnet,
+        estudiante: user.nombre,
+        texto: text,
+        fecha: new Date().toLocaleString(),
+        respuestas: []
+    };
+    
+    localInt.comments.push(newComment);
+    saveInteractions(videoId, localInt);
+    
+    if (currentActiveVideo && currentActiveVideo.id === videoId) {
+        renderComments(currentActiveVideo);
+    }
+}
+
+window.addReply = function(videoId, commentId) {
+    const input = document.getElementById(`reply-input-${commentId}`);
+    const text = input.value.trim();
+    if (!text) return;
+
+    const user = AuthAPI.getCurrentUser();
+    const localInt = getInteractions(videoId);
+    
+    const comment = localInt.comments.find(c => c.id === commentId);
+    if (comment) {
+        if (!comment.respuestas) comment.respuestas = [];
+        comment.respuestas.push({
+            id: Date.now(),
+            carne: user.carnet,
+            estudiante: user.nombre,
+            texto: text,
+            fecha: new Date().toLocaleString()
+        });
+        saveInteractions(videoId, localInt);
+        
+        if (currentActiveVideo && currentActiveVideo.id === videoId) {
+            renderComments(currentActiveVideo);
+        }
+    }
+}
+
+window.deleteComment = function(videoId, commentId, isOwner) {
+    if (!isOwner) {
+        alert("Error 403 Forbidden: Acceso denegado. Solo puedes eliminar tus propios comentarios.");
+        return;
+    }
+    
+    if(confirm("¿Estás seguro de que deseas eliminar este comentario?")) {
+        const localInt = getInteractions(videoId);
+        localInt.comments = localInt.comments.filter(c => c.id !== commentId);
+        saveInteractions(videoId, localInt);
+        
+        if (currentActiveVideo && currentActiveVideo.id === videoId) {
+            renderComments(currentActiveVideo);
+        }
+    }
+}
+
+window.deleteReply = function(videoId, parentId, replyId, isOwner) {
+    if (!isOwner) {
+        alert("Error 403 Forbidden: Acceso denegado. Solo puedes eliminar tus propios comentarios.");
+        return;
+    }
+    
+    if(confirm("¿Estás seguro de que deseas eliminar esta respuesta?")) {
+        const localInt = getInteractions(videoId);
+        const parent = localInt.comments.find(c => c.id === parentId);
+        if (parent && parent.respuestas) {
+            parent.respuestas = parent.respuestas.filter(r => r.id !== replyId);
+            saveInteractions(videoId, localInt);
+            
+            if (currentActiveVideo && currentActiveVideo.id === videoId) {
+                renderComments(currentActiveVideo);
+            }
+        }
+    }
 }
 
 // Close Video Player Modal

@@ -74,9 +74,22 @@
                     <span class="duration" id="modal-duration">00:00</span>
                 </div>
                 <div class="action-buttons">
-                    <button class="action-btn" title="Me gusta">👍 Me gusta</button>
-                    <button class="action-btn" title="Comentar">💬 Comentar</button>
-                    <button class="action-btn" title="Compartir">🔗 Compartir</button>
+                    <button class="action-btn" id="btn-like" title="Me gusta">👍 Me gusta</button>
+                    <button class="action-btn" id="btn-comment" title="Comentar">💬 Comentar</button>
+                    <button class="action-btn" id="btn-share" title="Compartir">🔗 Compartir</button>
+                </div>
+                
+                <div class="comments-section" id="comments-section">
+                    <h4>Comentarios</h4>
+                    <form id="comment-form" class="comment-form">
+                        <textarea id="comment-input" placeholder="Añade un comentario público..." required></textarea>
+                        <div class="comment-actions">
+                            <button type="submit" class="btn-primary">Comentar</button>
+                        </div>
+                    </form>
+                    <div id="comments-list" class="comments-list">
+                        <!-- Comentarios dinámicos -->
+                    </div>
                 </div>
             </div>
         </div>
