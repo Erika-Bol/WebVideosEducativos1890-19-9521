@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Videos Educativos</title>
+    <meta name="description" content="Plataforma de aprendizaje con un catálogo de videos educativos en diversas áreas como programación, bases de datos, y más.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">EduStream</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#home">Inicio</a></li>
+                <li><a href="#catalog">Catálogo</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1>Aprende sin límites</h1>
+                <p>Explora nuestro catálogo de videos educativos de alta calidad. Encuentra contenido de programación, diseño, bases de datos y mucho más.</p>
+                <a href="#catalog" class="btn-primary">Ver Catálogo</a>
+            </div>
+        </section>
+
+        <section id="catalog" class="catalog-section">
+            <div class="section-header">
+                <h2>Catálogo de Videos</h2>
+                <div class="filters">
+                    <select id="category-filter" aria-label="Filtrar por categoría">
+                        <option value="all">Todas las Categorías</option>
+                        <!-- Options injected via JS -->
+                    </select>
+                </div>
+            </div>
+            
+            <div class="loading-spinner" id="loading-spinner"></div>
+            
+            <div class="video-grid" id="video-grid">
+                <!-- Video Cards Injected via JS -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 EduStream. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Video Player Modal -->
+    <div id="video-modal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <button class="close-btn" id="close-modal" aria-label="Cerrar reproductor">&times;</button>
+            <div class="video-container">
+                <video id="player" controls controlsList="nodownload"></video>
+            </div>
+            <div class="video-info">
+                <h3 id="modal-title">Título del Video</h3>
+                <p id="modal-desc">Descripción del video...</p>
+                <div class="meta-info">
+                    <span class="badge" id="modal-category">Categoría</span>
+                    <span class="duration" id="modal-duration">00:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
