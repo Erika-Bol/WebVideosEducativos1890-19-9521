@@ -1,11 +1,11 @@
 :root {
-    --bg-primary: #0f111a;
-    --bg-secondary: #1a1d2d;
-    --bg-card: rgba(30, 34, 51, 0.7);
-    --text-primary: #ffffff;
-    --text-secondary: #a0a5b8;
-    --accent: #6366f1;
-    --accent-hover: #4f46e5;
+    --bg-primary: #73acf8;
+    --bg-secondary: #32f59a;
+    --bg-card: rgba(60, 247, 175, 0.7);
+    --text-primary: #161414;
+    --text-secondary: #08090a;
+    --accent: #fa2263;
+    --accent-hover: #e8f80b;
     --danger: #ef4444;
     --success: #10b981;
     --border-color: rgba(255, 255, 255, 0.1);
@@ -63,7 +63,7 @@ body {
 .logo {
     font-size: 1.8rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #6366f1, #a855f7);
+    background: linear-gradient(135deg, #6366f1, #82f7af);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
@@ -651,7 +651,7 @@ body {
         flex-shrink: 0;
         border-right: 1px solid var(--glass-border);
     }
-    
+
     .video-container video {
         max-height: 100%;
     }
